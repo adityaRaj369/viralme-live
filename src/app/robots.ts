@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { APP_DOMAIN } from "@/lib/constants";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? `https://${APP_DOMAIN}`;
+  const base = getSiteUrl();
   return {
     rules: [
       {

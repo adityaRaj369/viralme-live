@@ -12,6 +12,7 @@ import {
   APP_TAGLINE,
 } from "@/lib/constants";
 import { ThemeScript } from "@/components/theme-script";
+import { getSiteUrl } from "@/lib/site-url";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -19,7 +20,7 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${APP_DOMAIN}`;
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

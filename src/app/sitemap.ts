@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 import { useDemoStore, demoGetListings } from "@/lib/demo-store";
 import { getPublicCategories } from "@/lib/admin-demo";
-import { APP_DOMAIN } from "@/lib/constants";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? `https://${APP_DOMAIN}`;
+  const base = getSiteUrl();
   const now = new Date();
 
   const staticRoutes = [
