@@ -49,7 +49,7 @@ Optional later: Stripe for US/EU only; Keep Razorpay as default for viralme.live
 
 1. Set real `DATABASE_URL`, run `npx prisma db push && npx prisma db seed`
 2. Set `DEMO_AUTH=false`
-3. Set `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL=https://viralme.live`
+3. Set `AUTH_SECRET`, `APP_URL=https://viralme.live`
 4. Add Razorpay keys, set `PAYMENT_PROVIDER=razorpay`
 5. Point domain `viralme.live` + TLS
 6. Configure SMTP for transactional email

@@ -12,14 +12,14 @@
 
 | Key | Value (example) | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` | Later change to `https://viralme.live` |
-| `NEXT_PUBLIC_APP_NAME` | `viralme.live` | |
+| `APP_URL` | `https://your-app.vercel.app` | Server-only (not `NEXT_PUBLIC_`). Later → `https://viralme.live` |
+| `NEXT_PUBLIC_APP_NAME` | `viralme.live` | Safe to expose in browser |
 | `NEXT_PUBLIC_APP_DOMAIN` | `viralme.live` | |
 | `NEXT_PUBLIC_APP_CURRENCY` | `INR` | India default |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | `hello@viralme.live` | |
 | `AUTH_SECRET` | *(long random string)* | `openssl rand -base64 32` |
-| `AUTH_URL` | same as `NEXT_PUBLIC_APP_URL` | |
-| `NEXTAUTH_URL` | same as `NEXT_PUBLIC_APP_URL` | |
+| `AUTH_URL` | same as `APP_URL` | |
+| `NEXTAUTH_URL` | same as `APP_URL` | |
 | `DEMO_AUTH` | `true` | Keep `true` until real login + DB |
 | `PAYMENT_PROVIDER` | `mock` | Switch to `razorpay` later |
 | `DATABASE_URL` | Postgres URL | **Required for real analytics persistence** — use Vercel Postgres / Neon / Supabase |
@@ -51,7 +51,7 @@ Dashboard → **Analytics** shows **real** clicks by country only (empty until s
 ## 4. After first deploy
 
 1. Open the site URL Vercel gives you  
-2. Update `NEXT_PUBLIC_APP_URL`, `AUTH_URL`, `NEXTAUTH_URL` to that URL and redeploy  
+2. Update `APP_URL`, `AUTH_URL`, `NEXTAUTH_URL` to that URL and redeploy  
 3. When you own `viralme.live`, add the domain in Vercel → Domains and update those three again  
 
 ## 5. Production gate (before charging users)
