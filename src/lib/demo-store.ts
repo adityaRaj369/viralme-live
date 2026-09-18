@@ -128,7 +128,7 @@ export function demoGetListings(opts: {
   if (opts.board === "today") {
     items = items.filter((l) => l.todayRankDate === today && l.todayRankAmount > 0);
   }
-  if (opts.categorySlug && opts.categorySlug !== "all" && opts.categorySlug !== "leaderboards") {
+  if (opts.categorySlug && opts.categorySlug !== "all") {
     items = items.filter((l) => l.categorySlug === opts.categorySlug);
   }
 
@@ -347,6 +347,32 @@ export function demoFulfillByProviderOrderId(providerOrderId: string, userId?: s
 
 export function demoFindBySlug(slug: string) {
   return listings().find((l) => l.slug === slug) ?? null;
+}
+
+/** Match outbid /product/{domain} — hostname or slug */
+export function demoFindByDomainOrSlug(domainOrSlug: string) {
+  const key = domainOrSlug.toLowerCase().replace(/^www\./, "");
+  return (
+    listings().find((l) => {
+      if (l.slug.toLowerCase() === key) return true;
+      try {
+        const host = l.externalUrl
+          ? new URL(l.externalUrl).hostname.replace(/^www\./, "").toLowerCase()
+          : "";
+        return host === key;
+      } catch {
+        return false;
+      }
+    }) ?? null
+  );
+}
+
+/** Recent claims for Latest activity feed */
+export function demoLatestActivity(limit = 40) {
+  return [...listings()]
+    .filter((l) => l.status === "PUBLISHED" && l.rankAmount > 0)
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, limit);
 }
 
 export function demoIncrementClick(slug: string) {

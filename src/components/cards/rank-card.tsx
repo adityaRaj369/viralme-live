@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bot, Clock3, ExternalLink, Megaphone, Sparkles, Trophy } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { logoUrlForDomain } from "@/lib/favicon";
+import { categoryHrefForSlug, domainFromUrl, productHref } from "@/lib/product-path";
 
 export type RankCardData = {
   id: string;
@@ -31,15 +32,6 @@ function timeAgo(date: Date) {
   return `${Math.floor(days / 30)}mo ago`;
 }
 
-function domainFromUrl(url?: string | null) {
-  if (!url) return null;
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return null;
-  }
-}
-
 function CategoryIcon({ name }: { name?: string | null }) {
   const n = (name ?? "").toLowerCase();
   if (n.includes("agent")) return <Bot className="h-3 w-3" />;
@@ -57,12 +49,16 @@ export function RankCard({
   item: RankCardData;
   currency?: string;
   claimForAmount?: number;
-  /** Page where claim box lives, e.g. `/categories/seo` or `/seo` */
   claimHrefBase?: string;
 }) {
   const domain = item.domain ?? domainFromUrl(item.externalUrl);
   const logo = item.thumbnailUrl || (domain ? logoUrlForDomain(domain) : null);
   const headline = item.tagline ? `${item.title} · ${item.tagline}` : item.title;
+  const detailsHref = productHref({
+    slug: item.slug,
+    domain,
+    externalUrl: item.externalUrl,
+  });
   const claimHref =
     claimForAmount != null
       ? `${claimHrefBase}${claimHrefBase.includes("?") ? "&" : "?"}claim=${claimForAmount}`
@@ -98,7 +94,7 @@ export function RankCard({
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span className="text-[15px] font-extrabold text-accent sm:text-base">#{item.rank}</span>
                   <Link
-                    href={`/listing/${item.slug}`}
+                    href={detailsHref}
                     className="min-w-0 break-words text-[15px] font-bold tracking-tight hover:text-accent sm:text-base"
                   >
                     {headline}
@@ -113,7 +109,7 @@ export function RankCard({
                 <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
                   {item.categoryName ? (
                     <Link
-                      href={`/?category=${item.categorySlug || item.categoryName.toLowerCase()}`}
+                      href={categoryHrefForSlug(item.categorySlug)}
                       className="inline-flex items-center gap-1 hover:text-accent"
                     >
                       <CategoryIcon name={item.categoryName} />
@@ -126,7 +122,7 @@ export function RankCard({
                   </span>
                   {domain ? <span className="truncate">{domain}</span> : null}
                   <span>{item.clickCount.toLocaleString()} clicks</span>
-                  <Link href={`/listing/${item.slug}`} className="font-medium hover:text-accent">
+                  <Link href={detailsHref} className="font-medium hover:text-accent">
                     see details
                   </Link>
                 </div>

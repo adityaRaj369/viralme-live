@@ -6,6 +6,8 @@ import { logoUrlFromHref } from "@/lib/favicon";
 import { SHELL } from "@/lib/shell";
 import { cn, formatCurrency } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
+import { categoryBoardHref } from "@/lib/outbid-categories";
+import { productHref } from "@/lib/product-path";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,10 @@ function timeAgo(date: Date | null) {
   if (hours < 48) return `${hours} hours ago`;
   const days = Math.floor(hours / 24);
   return days === 1 ? "1 day ago" : `${days} days ago`;
+}
+
+function boardHref(cat: { slug: string; pathSlug: string }) {
+  return categoryBoardHref(cat);
 }
 
 export default function CategoriesPage() {
@@ -78,7 +84,7 @@ export default function CategoriesPage() {
           <div className="mt-6 space-y-3">
             {hottest.map((h, i) => {
               const leader = h.board.items[0];
-              const href = h.cat.slug === "seo" ? "/seo" : `/categories/${h.cat.slug}`;
+              const href = boardHref(h.cat);
               const logo = leader
                 ? leader.thumbnailUrl || logoUrlFromHref(leader.externalUrl)
                 : null;
@@ -137,17 +143,11 @@ export default function CategoriesPage() {
           <div key={cat.slug}>
             <div className="mb-3 flex items-end justify-between gap-3">
               <h2 className="text-lg font-bold">
-                <Link
-                  href={cat.slug === "seo" ? "/seo" : `/categories/${cat.slug}`}
-                  className="hover:text-accent"
-                >
+                <Link href={boardHref(cat)} className="hover:text-accent">
                   {cat.fullName}
                 </Link>
               </h2>
-              <Link
-                href={cat.slug === "seo" ? "/seo" : `/?category=${cat.slug}`}
-                className="text-sm font-semibold text-accent"
-              >
+              <Link href={boardHref(cat)} className="text-sm font-semibold text-accent">
                 Open board →
               </Link>
             </div>
@@ -156,7 +156,7 @@ export default function CategoriesPage() {
                 board.items.map((item) => (
                   <Link
                     key={item.id}
-                    href={`/listing/${item.slug}`}
+                    href={productHref({ slug: item.slug, externalUrl: item.externalUrl })}
                     className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-muted-bg/50"
                   >
                     <span className="min-w-0 truncate">

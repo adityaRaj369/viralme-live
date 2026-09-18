@@ -38,6 +38,7 @@ export type PublicCategory = {
   name: string;
   fullName: string;
   slug: string;
+  pathSlug: string;
   icon: string;
 };
 
@@ -135,29 +136,56 @@ function content(): SiteContent {
 export function getPublicCategories(): PublicCategory[] {
   const active = adminListCategories().filter((c) => c.status === "ACTIVE");
   return [
-    { id: "cat-all", name: "All", fullName: "All", slug: "all", icon: "sparkles" },
-    ...active.map((c) => ({
-      id: c.id,
-      name: c.shortName,
-      fullName: c.name,
-      slug: c.slug,
-      icon: c.icon,
-    })),
+    {
+      id: "cat-all",
+      name: "All",
+      fullName: "All",
+      slug: "all",
+      pathSlug: "",
+      icon: "sparkles",
+    },
+    ...active.map((c) => {
+      const seed = OUTBID_CATEGORIES.find((o) => o.slug === c.slug || o.id === c.id);
+      return {
+        id: c.id,
+        name: c.shortName,
+        fullName: c.name,
+        slug: c.slug,
+        pathSlug: seed?.pathSlug ?? c.slug,
+        icon: c.icon,
+      };
+    }),
   ];
 }
 
 export function getPublicCategoryBySlug(slug: string): PublicCategory | null {
   if (slug === "all") {
-    return { id: "cat-all", name: "All", fullName: "All", slug: "all", icon: "sparkles" };
+    return { id: "cat-all", name: "All", fullName: "All", slug: "all", pathSlug: "", icon: "sparkles" };
   }
-  const hit = adminListCategories().find((c) => c.slug === slug && c.status === "ACTIVE");
-  if (!hit) return null;
+  const byPath = OUTBID_CATEGORIES.find((c) => c.pathSlug === slug || c.slug === slug);
+  const hit = adminListCategories().find(
+    (c) =>
+      c.status === "ACTIVE" &&
+      (c.slug === slug || c.slug === byPath?.slug || c.id === byPath?.id),
+  );
+  if (!hit && !byPath) return null;
+  const row = hit ?? {
+    id: byPath!.id,
+    name: byPath!.name,
+    shortName: byPath!.shortName,
+    slug: byPath!.slug,
+    icon: byPath!.icon,
+    status: "ACTIVE" as const,
+    sortOrder: 0,
+    description: "",
+  };
   return {
-    id: hit.id,
-    name: hit.shortName,
-    fullName: hit.name,
-    slug: hit.slug,
-    icon: hit.icon,
+    id: row.id,
+    name: row.shortName,
+    fullName: row.name,
+    slug: row.slug,
+    pathSlug: byPath?.pathSlug ?? row.slug,
+    icon: row.icon,
   };
 }
 

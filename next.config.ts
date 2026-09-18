@@ -33,11 +33,15 @@ const nextConfig: NextConfig = {
     },
   },
   async redirects() {
-    return leftoverProductPaths.map((source) => ({
-      source,
-      destination: "/",
-      permanent: false,
-    }));
+    return [
+      ...leftoverProductPaths.map((source) => ({
+        source,
+        destination: "/",
+        permanent: false,
+      })),
+      { source: "/seo", destination: "/category/seo-ai-visibility", permanent: false },
+      { source: "/seo/today", destination: "/category/seo-ai-visibility/today", permanent: false },
+    ];
   },
 };
 
