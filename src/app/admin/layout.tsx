@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const allowed =
     hasMinRole(session.user.role, "MODERATOR") ||
     (DEMO_AUTH && session.user.email === "admin@viralme.live");
-  if (!allowed) redirect("/dashboard");
+  if (!allowed) redirect("/");
 
   return (
     <div className="min-h-screen bg-background text-foreground">

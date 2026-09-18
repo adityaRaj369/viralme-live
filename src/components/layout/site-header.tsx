@@ -30,7 +30,7 @@ export function SiteHeader() {
     if (searchOpen) inputRef.current?.focus();
   }, [searchOpen]);
 
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin")) {
     return null;
   }
 

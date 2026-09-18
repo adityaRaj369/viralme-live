@@ -1,5 +1,24 @@
 import type { NextConfig } from "next";
 
+/** Old MakeMeViral product pages → home (not part of outbid-style product). */
+const leftoverProductPaths = [
+  "/dashboard",
+  "/dashboard/:path*",
+  "/submit",
+  "/pricing",
+  "/creators",
+  "/deals",
+  "/trending",
+  "/products",
+  "/videos",
+  "/food",
+  "/groceries",
+  "/youtube-videos",
+  "/youtube-shorts",
+  "/instagram-reels",
+  "/register",
+];
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -12,6 +31,13 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "2mb",
     },
+  },
+  async redirects() {
+    return leftoverProductPaths.map((source) => ({
+      source,
+      destination: "/",
+      permanent: false,
+    }));
   },
 };
 

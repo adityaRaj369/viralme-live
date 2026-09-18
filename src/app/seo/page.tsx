@@ -76,7 +76,6 @@ export default async function SeoCategoryPage() {
         </Suspense>
         <p className="mt-3 text-center text-xs text-muted">
           Claims on this page target the <strong className="text-foreground">SEO</strong> category.
-          Payment & login wiring comes later — demo checkout is mock.
         </p>
       </div>
 
@@ -85,6 +84,7 @@ export default async function SeoCategoryPage() {
           <RankCard
             key={item.id}
             currency={currency}
+            claimHrefBase="/seo"
             claimForAmount={item.rank === 1 ? board.claimPrice : item.displayAmount + 1}
             item={{
               id: item.id,

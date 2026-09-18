@@ -121,9 +121,7 @@ export function ListingCard({
           </div>
           {listing.externalUrl ? (
             <a
-              href={listing.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/api/go/${listing.slug}`}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white hover:bg-accent-hover"
               onClick={(e) => e.stopPropagation()}
             >

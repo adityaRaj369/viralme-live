@@ -1,4 +1,4 @@
-/**
+﻿/**
  * In-memory leaderboard for DEMO_AUTH when Postgres is unavailable.
  */
 import { DEMO_AUTH } from "@/lib/auth";
@@ -41,7 +41,7 @@ export type DemoOrder = {
 };
 
 const g = globalThis as unknown as {
-  __mmvDemoListingsV4?: DemoListing[];
+  __mmvDemoListingsV5?: DemoListing[];
   __mmvDemoOrders?: Map<string, DemoOrder>;
 };
 
@@ -64,7 +64,7 @@ function seedListing(partial: Omit<DemoListing, "thumbnailUrl" | "updatedAt" | "
 }
 
 function listings(): DemoListing[] {
-  if (!g.__mmvDemoListingsV4) {
+  if (!g.__mmvDemoListingsV5) {
     const today = new Date().toISOString().slice(0, 10);
     const core: DemoListing[] = [
       seedListing({
@@ -73,14 +73,14 @@ function listings(): DemoListing[] {
         title: "see.io",
         tagline: "see your idea live",
         description:
-          "AI visibility for your brand across ChatGPT, Claude, Gemini, and Perplexity — know when you're mentioned.",
+          "AI visibility for your brand across ChatGPT, Claude, Gemini, and Perplexity â€” know when you're mentioned.",
         rankAmount: 17001,
         todayRankAmount: 420,
         todayRankDate: today,
         externalUrl: "https://see.io",
         originalUrl: "https://see.io",
         creatorHandle: null,
-        clickCount: 59382,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 8 * 86400000),
         publishedAt: new Date(Date.now() - 8 * 86400000),
         categorySlug: "agents",
@@ -91,14 +91,14 @@ function listings(): DemoListing[] {
         slug: "outrank",
         title: "Outrank",
         tagline: "SEO that ships",
-        description: "Generate SEO content that actually ranks — briefs, drafts, and internal links.",
+        description: "Generate SEO content that actually ranks â€” briefs, drafts, and internal links.",
         rankAmount: 8420,
         todayRankAmount: 180,
         todayRankDate: today,
         externalUrl: "https://outrank.so",
         originalUrl: "https://outrank.so",
         creatorHandle: null,
-        clickCount: 22104,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 12 * 86400000),
         publishedAt: new Date(Date.now() - 12 * 86400000),
         categorySlug: "seo",
@@ -116,7 +116,7 @@ function listings(): DemoListing[] {
         externalUrl: "https://www.framer.com",
         originalUrl: "https://www.framer.com",
         creatorHandle: null,
-        clickCount: 18440,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 20 * 86400000),
         publishedAt: new Date(Date.now() - 20 * 86400000),
         categorySlug: "productivity",
@@ -127,14 +127,14 @@ function listings(): DemoListing[] {
         slug: "linear",
         title: "Linear",
         tagline: "build software faster",
-        description: "The issue tracking tool you'll enjoy using — purpose-built for high-performance teams.",
+        description: "The issue tracking tool you'll enjoy using â€” purpose-built for high-performance teams.",
         rankAmount: 3900,
         todayRankAmount: 40,
         todayRankDate: today,
         externalUrl: "https://linear.app",
         originalUrl: "https://linear.app",
         creatorHandle: null,
-        clickCount: 15220,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 30 * 86400000),
         publishedAt: new Date(Date.now() - 30 * 86400000),
         categorySlug: "productivity",
@@ -145,14 +145,14 @@ function listings(): DemoListing[] {
         slug: "notion",
         title: "Notion",
         tagline: "one workspace",
-        description: "Notes, docs, wikis, and projects — connected in one beautiful workspace.",
+        description: "Notes, docs, wikis, and projects â€” connected in one beautiful workspace.",
         rankAmount: 2750,
         todayRankAmount: 25,
         todayRankDate: today,
         externalUrl: "https://www.notion.so",
         originalUrl: "https://www.notion.so",
         creatorHandle: null,
-        clickCount: 30112,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 45 * 86400000),
         publishedAt: new Date(Date.now() - 45 * 86400000),
         categorySlug: "productivity",
@@ -163,14 +163,14 @@ function listings(): DemoListing[] {
         slug: "stripe",
         title: "Stripe",
         tagline: "payments infrastructure",
-        description: "Financial infrastructure for the internet — accept payments, send payouts, manage revenue.",
+        description: "Financial infrastructure for the internet â€” accept payments, send payouts, manage revenue.",
         rankAmount: 1999,
         todayRankAmount: 12,
         todayRankDate: today,
         externalUrl: "https://stripe.com",
         originalUrl: "https://stripe.com",
         creatorHandle: null,
-        clickCount: 44001,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 60 * 86400000),
         publishedAt: new Date(Date.now() - 60 * 86400000),
         categorySlug: "marketing",
@@ -188,7 +188,7 @@ function listings(): DemoListing[] {
         externalUrl: "https://vercel.com",
         originalUrl: "https://vercel.com",
         creatorHandle: null,
-        clickCount: 27890,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 14 * 86400000),
         publishedAt: new Date(Date.now() - 14 * 86400000),
         categorySlug: "productivity",
@@ -206,7 +206,7 @@ function listings(): DemoListing[] {
         externalUrl: "https://openai.com",
         originalUrl: "https://openai.com",
         creatorHandle: null,
-        clickCount: 99012,
+        clickCount: 0,
         createdAt: new Date(Date.now() - 4 * 86400000),
         publishedAt: new Date(Date.now() - 4 * 86400000),
         categorySlug: "agents",
@@ -229,7 +229,7 @@ function listings(): DemoListing[] {
         externalUrl: `https://${p.domain}`,
         originalUrl: `https://${p.domain}`,
         creatorHandle: null,
-        clickCount: 200 + i * 137,
+        clickCount: 0,
         createdAt: new Date(Date.now() - (i + 2) * 86400000),
         publishedAt: new Date(Date.now() - (i + 2) * 86400000),
         categorySlug: p.category,
@@ -237,9 +237,9 @@ function listings(): DemoListing[] {
       });
     });
 
-    g.__mmvDemoListingsV4 = [...core, ...extras];
+    g.__mmvDemoListingsV5 = [...core, ...extras];
   }
-  return g.__mmvDemoListingsV4;
+  return g.__mmvDemoListingsV5;
 }
 
 function orders() {
@@ -551,3 +551,20 @@ export function demoFulfillByProviderOrderId(providerOrderId: string, userId?: s
 
   return { listingId: listing.id, targetAmount: order.targetAmount, demo: true };
 }
+
+export function demoFindBySlug(slug: string) {
+  return listings().find((l) => l.slug === slug) ?? null;
+}
+
+export function demoIncrementClick(slug: string) {
+  const listing = demoFindBySlug(slug);
+  if (!listing) return null;
+  listing.clickCount += 1;
+  listing.updatedAt = new Date();
+  return listing;
+}
+
+export function demoListingsForOwner(ownerId: string) {
+  return listings().filter((l) => l.ownerId === ownerId && l.status === "PUBLISHED");
+}
+

@@ -75,6 +75,7 @@ export default async function CategoryBoardPage({
           <RankCard
             key={item.id}
             currency={currency}
+            claimHrefBase={`/categories/${cat.slug}`}
             claimForAmount={item.rank === 1 ? board.claimPrice : item.displayAmount + 1}
             item={{
               id: item.id,

@@ -9,17 +9,10 @@ Public **pay-to-rank** leaderboard for **India & Asia** (inspired by outbid.lol)
 - Auth.js (demo credentials for now)
 - Payments: **mock** now → wire **Razorpay** for India/Asia
 
-## Run
+## Deploy on Vercel
 
-```bash
-npm install
-npm run dev
-```
+See **[docs/vercel-deploy.md](./docs/vercel-deploy.md)** for the exact env vars to paste into the Vercel deploy screen.
 
-Open http://localhost:3000
-
-Demo admin: `admin@makemeviral.app` / `Password123!`  
-Demo user: `demo@makemeviral.app` / `Password123!`
 
 ## What works now (demo / production UI)
 
@@ -27,11 +20,14 @@ Demo user: `demo@makemeviral.app` / `Password123!`
 - Category boards + dedicated **/seo** paid board
 - Daily, About, FAQ, Rules, Terms, Privacy, Imprint, Live stats, Search
 - Admin category CRUD (add/disable select options) via `/admin/categories`
+- Click tracking via `/api/go/[slug]` + country (Vercel geo) — no fake dashboard numbers
 - SEO: sitemap, robots, Open Graph, JSON-LD, en-IN targeting
+- **No user dashboard** (same as outbid.lol) — claim from the public board
 
 ## Left for you
 
-- Real login / signup (turn `DEMO_AUTH=false` + Postgres)
+- Real Postgres (`DATABASE_URL` + `prisma db push`)
+- Real login / signup (turn `DEMO_AUTH=false`)
 - Real payments (`PAYMENT_PROVIDER=razorpay` + keys)
 
 ## Payments recommendation (India & Asia)

@@ -7,8 +7,8 @@ export default function NotFound() {
       <p className="text-sm font-semibold uppercase tracking-wide text-accent">404</p>
       <h1 className="mt-3 text-3xl font-bold">Looks like this page doesn&apos;t exist.</h1>
       <p className="mt-3 text-muted">The listing or page may have been moved or removed.</p>
-      <Link href="/trending" className="mt-8">
-        <Button>Explore Trending</Button>
+      <Link href="/" className="mt-8">
+        <Button>Back to leaderboard</Button>
       </Link>
     </div>
   );

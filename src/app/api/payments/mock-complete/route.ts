@@ -48,7 +48,5 @@ export async function GET(req: NextRequest) {
   if (!providerOrderId) {
     return NextResponse.json({ error: "orderId required" }, { status: 400 });
   }
-  return NextResponse.redirect(
-    new URL(`/dashboard/billing?mockOrder=${providerOrderId}`, req.nextUrl.origin),
-  );
+  return NextResponse.redirect(new URL("/?claimed=1", req.nextUrl.origin));
 }

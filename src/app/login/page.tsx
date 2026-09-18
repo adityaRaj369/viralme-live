@@ -1,18 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
-const DEMO_EMAIL = "demo@viralme.live";
 const DEMO_PASSWORD = "Password123!";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState(DEMO_EMAIL);
+  const [email, setEmail] = useState("admin@viralme.live");
   const [password, setPassword] = useState(DEMO_PASSWORD);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +28,8 @@ export default function LoginPage() {
       setError("Could not sign in. Try the demo credentials.");
       return;
     }
-    router.push("/dashboard");
+    const dest = nextEmail.toLowerCase().includes("admin") ? "/admin" : "/";
+    router.push(dest);
     router.refresh();
   }
 
@@ -42,12 +41,14 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16">
       <div className="mb-4 rounded-2xl border border-accent/30 bg-accent-soft px-4 py-3 text-sm">
-        <p className="font-semibold text-accent">Demo mode</p>
-        <p className="mt-0.5 text-muted">No real account needed — use the prefilled credentials or tap Continue.</p>
+        <p className="font-semibold text-accent">Admin login</p>
+        <p className="mt-0.5 text-muted">
+          Public site needs no account — claim ranks from the leaderboard.
+        </p>
       </div>
 
-      <h1 className="text-3xl font-bold">Welcome back</h1>
-      <p className="mt-2 text-sm text-muted">Log in to claim ranks and manage your listings.</p>
+      <h1 className="text-3xl font-bold">Sign in</h1>
+      <p className="mt-2 text-sm text-muted">Admin only. Categories and settings live here.</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <div>
@@ -75,37 +76,22 @@ export default function LoginPage() {
         </div>
         {error ? <p className="text-sm text-danger">{error}</p> : null}
         <Button className="w-full" disabled={loading}>
-          {loading ? "Signing in…" : "Continue as demo"}
+          {loading ? "Signing in…" : "Continue"}
         </Button>
       </form>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={loading}
-          onClick={() => login(DEMO_EMAIL, DEMO_PASSWORD)}
-        >
-          Demo creator
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={loading}
-          onClick={() => login("admin@viralme.live", DEMO_PASSWORD)}
-        >
-          Demo admin
-        </Button>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-3 w-full"
+        disabled={loading}
+        onClick={() => login("admin@viralme.live", DEMO_PASSWORD)}
+      >
+        Demo admin
+      </Button>
 
-      <p className="mt-6 text-center text-sm text-muted">
-        No account?{" "}
-        <Link href="/register" className="font-semibold text-accent">
-          Sign up (demo)
-        </Link>
-      </p>
-      <p className="mt-2 text-center text-xs text-muted">
-        demo@viralme.live / Password123! · admin@viralme.live / Password123!
+      <p className="mt-6 text-center text-xs text-muted">
+        admin@viralme.live / Password123!
       </p>
     </div>
   );

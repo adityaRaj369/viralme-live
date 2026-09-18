@@ -52,23 +52,30 @@ export function RankCard({
   item,
   currency = "USD",
   claimForAmount,
+  claimHrefBase = "/",
 }: {
   item: RankCardData;
   currency?: string;
   claimForAmount?: number;
+  /** Page where claim box lives, e.g. `/categories/seo` or `/seo` */
+  claimHrefBase?: string;
 }) {
   const domain = item.domain ?? domainFromUrl(item.externalUrl);
   const logo = item.thumbnailUrl || (domain ? logoUrlForDomain(domain) : null);
   const headline = item.tagline ? `${item.title} · ${item.tagline}` : item.title;
+  const claimHref =
+    claimForAmount != null
+      ? `${claimHrefBase}${claimHrefBase.includes("?") ? "&" : "?"}claim=${claimForAmount}`
+      : null;
 
   return (
     <article className="relative w-full animate-fade-up">
-      {claimForAmount != null ? (
+      {claimHref ? (
         <Link
-          href={`/?claim=${claimForAmount}`}
+          href={claimHref}
           className="absolute -top-3 left-4 z-10 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm sm:left-5"
         >
-          claim this rank for {formatCurrency(claimForAmount, currency)}
+          claim this rank for {formatCurrency(claimForAmount!, currency)}
         </Link>
       ) : null}
 
@@ -133,8 +140,7 @@ export function RankCard({
             </div>
             {item.externalUrl ? (
               <a
-                href={item.externalUrl}
-                target="_blank"
+                href={`/api/go/${item.slug}`}
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted hover:text-accent"
               >
