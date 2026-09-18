@@ -1,13 +1,13 @@
 /**
  * In-memory admin CMS (works without Postgres while DEMO_AUTH=true).
- * With DATABASE_URL later, migrate these keys into SiteSetting / Category tables.
  */
-import { DEMO_CATEGORIES } from "@/lib/demo-store";
+import { OUTBID_CATEGORIES } from "@/lib/outbid-categories";
 import { slugify } from "@/lib/utils";
 
 export type AdminCategory = {
   id: string;
   name: string;
+  shortName: string;
   slug: string;
   description: string;
   status: "ACTIVE" | "DISABLED";
@@ -33,10 +33,18 @@ export type SiteContent = {
   homeEmpty: string;
 };
 
+export type PublicCategory = {
+  id: string;
+  name: string;
+  fullName: string;
+  slug: string;
+  icon: string;
+};
+
 const g = globalThis as unknown as {
-  __viralAdminCategories?: AdminCategory[];
+  __viralAdminCategoriesV3?: AdminCategory[];
   __viralAdminSettings?: AdminSettings;
-  __viralSiteContent?: SiteContent;
+  __viralSiteContentV2?: SiteContent;
 };
 
 function defaultContent(): SiteContent {
@@ -44,23 +52,7 @@ function defaultContent(): SiteContent {
     aboutIntro:
       "viralme.live started as a simple side project: no ads, no API keys, no revenue sharing. Just claim #1 — that's it.",
     aboutAfterLive: "The board is still here. Same rules. Same idea. Rank is what you pay — nothing else.",
-    testimonials: [
-      {
-        name: "MakerThrive",
-        handle: "@MakerThrive",
-        body: "this is WILD!!! spent on the board and drove thousands of people to my launch. insane ROI!",
-      },
-      {
-        name: "CrowdReply",
-        handle: "@Crowdreply_io",
-        body: "We bought the #1 spot — trended on X, thousands of clicks, demo calendar fully booked.",
-      },
-      {
-        name: "Tibo",
-        handle: "@tibo_maker",
-        body: "result from my outbid-style bet — somewhat successful. Most people said it was just bragging with money.",
-      },
-    ],
+    testimonials: [],
     faq: [
       {
         q: "How does ranking work?",
@@ -68,7 +60,7 @@ function defaultContent(): SiteContent {
       },
       {
         q: "How do I claim #1?",
-        a: "Pay at least the current #1 amount plus the bump (see Rules). Whole currency units only.",
+        a: "Pay at least the current #1 amount plus the bump configured by the admin. Whole currency units only.",
       },
       {
         q: "What's the difference between All-time and Today?",
@@ -81,10 +73,6 @@ function defaultContent(): SiteContent {
       {
         q: "Do clicks affect rank?",
         a: "No. Clicks are analytics only.",
-      },
-      {
-        q: "Is this the real payment system?",
-        a: "Demo uses mock payments until Razorpay + Postgres are connected.",
       },
     ],
     rules: [
@@ -99,19 +87,18 @@ function defaultContent(): SiteContent {
       "By using viralme.live you agree that ranks are paid placements, not endorsements. You are responsible for your listing content and destination URL. We may remove listings that violate law or these rules.",
     privacy:
       "We store account email (when login is enabled), listing data you submit, payment metadata from the provider, and anonymized click country for analytics. We do not sell personal data. Contact support to request deletion.",
-    imprint:
-      "viralme.live — India & Asia pay-to-rank leaderboard.\nContact: hello@viralme.live",
-    footerBlurb:
-      "a public pay-to-rank leaderboard. Rank is what you pay — nothing else.",
-    homeEmpty: "No ranks claimed yet. Be the first — claim #1 below.",
+    imprint: "viralme.live — India & Asia pay-to-rank leaderboard.\nContact: hello@viralme.live",
+    footerBlurb: "a public pay-to-rank leaderboard. Rank is what you pay — nothing else.",
+    homeEmpty: "No ranks claimed yet. Be the first — paste a URL or @handle and claim #1.",
   };
 }
 
 function cats(): AdminCategory[] {
-  if (!g.__viralAdminCategories) {
-    g.__viralAdminCategories = DEMO_CATEGORIES.filter((c) => c.slug !== "all").map((c, i) => ({
+  if (!g.__viralAdminCategoriesV3) {
+    g.__viralAdminCategoriesV3 = OUTBID_CATEGORIES.filter((c) => c.slug !== "all").map((c, i) => ({
       id: c.id,
       name: c.name,
+      shortName: c.shortName,
       slug: c.slug,
       description: `${c.name} paid ranking board`,
       status: "ACTIVE" as const,
@@ -119,7 +106,7 @@ function cats(): AdminCategory[] {
       icon: c.icon,
     }));
   }
-  return g.__viralAdminCategories;
+  return g.__viralAdminCategoriesV3;
 }
 
 function settings(): AdminSettings {
@@ -140,27 +127,38 @@ function settings(): AdminSettings {
 }
 
 function content(): SiteContent {
-  if (!g.__viralSiteContent) g.__viralSiteContent = defaultContent();
-  return g.__viralSiteContent;
+  if (!g.__viralSiteContentV2) g.__viralSiteContentV2 = defaultContent();
+  return g.__viralSiteContentV2;
 }
 
-/** Categories shown on the public site (All + active only). */
-export function getPublicCategories() {
+/** Home chips use shortName; categories page uses fullName */
+export function getPublicCategories(): PublicCategory[] {
   const active = adminListCategories().filter((c) => c.status === "ACTIVE");
   return [
-    { id: "cat-all", name: "All", slug: "all", icon: "sparkles" },
+    { id: "cat-all", name: "All", fullName: "All", slug: "all", icon: "sparkles" },
     ...active.map((c) => ({
       id: c.id,
-      name: c.name,
+      name: c.shortName,
+      fullName: c.name,
       slug: c.slug,
       icon: c.icon,
     })),
   ];
 }
 
-export function getPublicCategoryBySlug(slug: string) {
-  if (slug === "all") return { id: "cat-all", name: "All", slug: "all", icon: "sparkles" };
-  return adminListCategories().find((c) => c.slug === slug && c.status === "ACTIVE") ?? null;
+export function getPublicCategoryBySlug(slug: string): PublicCategory | null {
+  if (slug === "all") {
+    return { id: "cat-all", name: "All", fullName: "All", slug: "all", icon: "sparkles" };
+  }
+  const hit = adminListCategories().find((c) => c.slug === slug && c.status === "ACTIVE");
+  if (!hit) return null;
+  return {
+    id: hit.id,
+    name: hit.shortName,
+    fullName: hit.name,
+    slug: hit.slug,
+    icon: hit.icon,
+  };
 }
 
 export function getDemoRankConfig() {
@@ -176,15 +174,22 @@ export function adminListCategories() {
   return [...cats()].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export function adminCreateCategory(input: { name: string; description?: string; icon?: string }) {
+export function adminCreateCategory(input: {
+  name: string;
+  shortName?: string;
+  description?: string;
+  icon?: string;
+}) {
   const list = cats();
   const name = input.name.trim();
-  if (!name || name.length > 64) throw new Error("Invalid category name");
-  const slug = slugify(name) || `cat-${Date.now()}`;
+  if (!name || name.length > 80) throw new Error("Invalid category name");
+  const shortName = (input.shortName?.trim() || name.split(/[&,]/)[0]?.trim() || name).slice(0, 32);
+  const slug = slugify(shortName) || `cat-${Date.now()}`;
   if (list.some((c) => c.slug === slug)) throw new Error("Category slug already exists");
   const row: AdminCategory = {
     id: `cat-custom-${Date.now()}`,
     name,
+    shortName,
     slug,
     description: (input.description?.trim() || `${name} board`).slice(0, 280),
     status: "ACTIVE",
@@ -197,15 +202,18 @@ export function adminCreateCategory(input: { name: string; description?: string;
 
 export function adminUpdateCategory(
   id: string,
-  patch: Partial<Pick<AdminCategory, "name" | "description" | "status" | "sortOrder" | "icon">>,
+  patch: Partial<
+    Pick<AdminCategory, "name" | "shortName" | "description" | "status" | "sortOrder" | "icon">
+  >,
 ) {
   const row = cats().find((c) => c.id === id);
   if (!row) throw new Error("Category not found");
   if (patch.name !== undefined) {
     const name = String(patch.name).trim();
-    if (!name || name.length > 64) throw new Error("Invalid name");
+    if (!name || name.length > 80) throw new Error("Invalid name");
     row.name = name;
   }
+  if (patch.shortName !== undefined) row.shortName = String(patch.shortName).trim().slice(0, 32);
   if (patch.description !== undefined) row.description = String(patch.description).slice(0, 280);
   if (patch.status === "ACTIVE" || patch.status === "DISABLED") row.status = patch.status;
   if (typeof patch.sortOrder === "number") row.sortOrder = patch.sortOrder;

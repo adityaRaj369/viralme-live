@@ -21,8 +21,8 @@ export async function generateMetadata({
   const cat = getPublicCategoryBySlug(slug);
   if (!cat) return { title: "Category" };
   return {
-    title: `${cat.name} ranking`,
-    description: `Pay to rank in ${cat.name} on ${APP_NAME}. Rank is what you pay.`,
+    title: `${cat.fullName} ranking`,
+    description: `Pay to rank in ${cat.fullName} on ${APP_NAME}. Rank is what you pay.`,
     alternates: { canonical: `/categories/${slug}` },
   };
 }
@@ -49,9 +49,9 @@ export default async function CategoryBoardPage({
         <Link href="/categories" className="hover:text-accent">
           Categories
         </Link>{" "}
-        / <span className="text-foreground">{cat.name}</span>
+        / <span className="text-foreground">{cat.fullName}</span>
       </nav>
-      <h1 className="mt-4 text-3xl font-extrabold tracking-tight">{cat.name} ranking</h1>
+      <h1 className="mt-4 text-3xl font-extrabold tracking-tight">{cat.fullName} ranking</h1>
       <p className="mt-2 text-muted">
         Claim #{1} from {formatCurrency(board.claimPrice, currency)}. Paid placement only.
       </p>
@@ -62,7 +62,7 @@ export default async function CategoryBoardPage({
             claimPrice={board.claimPrice}
             currency={currency}
             defaultCategoryId={cat.id}
-            lockedCategoryLabel={cat.name}
+            lockedCategoryLabel={cat.fullName}
           />
         </Suspense>
       </div>

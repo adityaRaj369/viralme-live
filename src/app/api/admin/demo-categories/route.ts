@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const row = adminCreateCategory({
       name: String(body.name ?? ""),
+      shortName: body.shortName ? String(body.shortName) : undefined,
       description: body.description ? String(body.description) : undefined,
       icon: body.icon ? String(body.icon) : undefined,
     });

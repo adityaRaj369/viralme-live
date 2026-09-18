@@ -26,11 +26,14 @@ See **[docs/vercel-deploy.md](./docs/vercel-deploy.md)** for the exact env vars 
 - **No user dashboard** (same as outbid.lol) — claim from the public board
 
 See **[docs/admin-guide.md](./docs/admin-guide.md)** for how to manage the site securely.
-## Left for you
+## Flip off demo → real data
 
-- Real Postgres (`DATABASE_URL` + `prisma db push`)
-- Real login / signup (turn `DEMO_AUTH=false`)
-- Real payments (`PAYMENT_PROVIDER=razorpay` + keys)
+1. Add `DATABASE_URL` (Neon/Supabase/Vercel Postgres)
+2. `npx prisma db push && npm run db:seed`
+3. Set `DEMO_AUTH=false`
+4. Wire `PAYMENT_PROVIDER=razorpay` + keys
+
+Until then the board starts **empty** (no fake products/stats). Claims you make are real in-memory data.
 
 ## Payments recommendation (India & Asia)
 

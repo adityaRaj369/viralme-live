@@ -38,14 +38,15 @@ export default async function SeoCategoryPage() {
         <Link href="/categories" className="hover:text-accent">
           Categories
         </Link>{" "}
-        / <span className="text-foreground">SEO</span>
+        / <span className="text-foreground">SEO & AI Visibility</span>
       </nav>
 
-      <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">SEO ranking</h1>
+      <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
+        SEO & AI Visibility ranking
+      </h1>
       <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted">
-        The SEO board is a paid placement channel for India & Asia. Paste your product URL, set a bid
-        in {currency}, and claim a rank. Higher bid = higher rank. Clicks are tracked — they never
-        change your position.
+        Paid placement for SEO products. Paste your URL, set a bid in {currency}, and claim a rank.
+        Higher bid = higher rank. Clicks are tracked — they never change your position.
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -61,7 +62,7 @@ export default async function SeoCategoryPage() {
         </div>
         <div className="ob-card p-4">
           <div className="text-xs uppercase text-muted">How it works</div>
-          <div className="mt-1 text-sm font-semibold">Pay difference to raise · mock checkout in demo</div>
+          <div className="mt-1 text-sm font-semibold">Pay to rank · raise by paying the difference</div>
         </div>
       </div>
 
@@ -71,11 +72,11 @@ export default async function SeoCategoryPage() {
             claimPrice={board.claimPrice}
             currency={currency}
             defaultCategoryId="cat-seo"
-            lockedCategoryLabel="SEO"
+            lockedCategoryLabel="SEO & AI Visibility"
           />
         </Suspense>
         <p className="mt-3 text-center text-xs text-muted">
-          Claims on this page target the <strong className="text-foreground">SEO</strong> category.
+          Claims target the <strong className="text-foreground">SEO & AI Visibility</strong> board.
         </p>
       </div>
 

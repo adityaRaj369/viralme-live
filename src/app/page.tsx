@@ -146,7 +146,8 @@ export default async function HomePage({
         >
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
           <span className="truncate">
-            {stats.online} online · {stats.visitorsToday.toLocaleString()} visitors today · stats→
+            {stats.online} online · {stats.visitorsToday.toLocaleString()} visitors today ·{" "}
+            {stats.products} on board · stats→
           </span>
         </Link>
 

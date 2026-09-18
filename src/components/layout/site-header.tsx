@@ -9,7 +9,6 @@ import { SHELL } from "@/lib/shell";
 const nav = [
   { href: "/daily", label: "Daily" },
   { href: "/categories", label: "Categories" },
-  { href: "/seo", label: "SEO" },
   { href: "/about", label: "About" },
 ];
 
