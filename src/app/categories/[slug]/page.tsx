@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { getLeaderboard } from "@/modules/leaderboard/service";
 import { ClaimRankBox } from "@/features/leaderboard/claim-rank-box";
 import { RankCard } from "@/components/cards/rank-card";
-import { DEMO_CATEGORIES } from "@/lib/demo-store";
+import { getPublicCategoryBySlug } from "@/lib/admin-demo";
 import { SHELL } from "@/lib/shell";
 import { APP_CURRENCY, APP_NAME } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -18,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const cat = DEMO_CATEGORIES.find((c) => c.slug === slug);
+  const cat = getPublicCategoryBySlug(slug);
   if (!cat) return { title: "Category" };
   return {
     title: `${cat.name} ranking`,
@@ -33,10 +33,7 @@ export default async function CategoryBoardPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (slug === "seo") {
-    // dedicated SEO page
-  }
-  const cat = DEMO_CATEGORIES.find((c) => c.slug === slug);
+  const cat = getPublicCategoryBySlug(slug);
   if (!cat || cat.slug === "all") notFound();
 
   const board = await getLeaderboard({

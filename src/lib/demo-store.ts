@@ -286,6 +286,20 @@ export const DEMO_RANK_CONFIG = {
   currency: "INR",
 };
 
+/** Live rank economics from admin settings (falls back to DEMO_RANK_CONFIG). */
+export function getDemoRankConfig() {
+  try {
+    // Lazy import avoids circular dependency with admin-demo
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getDemoRankConfig: fromAdmin } = require("@/lib/admin-demo") as {
+      getDemoRankConfig: () => typeof DEMO_RANK_CONFIG;
+    };
+    return fromAdmin();
+  } catch {
+    return DEMO_RANK_CONFIG;
+  }
+}
+
 export const DEMO_GUEST_USER_ID = "demo-guest-id";
 
 const EXTRA_PRODUCTS: { title: string; domain: string; category: string; tagline: string; desc: string }[] = [
@@ -388,7 +402,8 @@ export function demoGetListings(opts: {
       ? top.rankAmount
       : top.todayRankAmount
     : 0;
-  const claimPrice = Math.max(DEMO_RANK_CONFIG.minAmount, currentTop + DEMO_RANK_CONFIG.bumpAmount);
+  const cfg = getDemoRankConfig();
+  const claimPrice = Math.max(cfg.minAmount, currentTop + cfg.bumpAmount);
 
   return {
     items: pageItems.map((item, i) => ({
@@ -408,7 +423,7 @@ export function demoGetListings(opts: {
     claimPrice,
     currentTop,
     board: opts.board,
-    config: DEMO_RANK_CONFIG,
+    config: cfg,
   };
 }
 
@@ -437,14 +452,26 @@ export function demoCreateClaim(opts: {
 }) {
   const cat =
     DEMO_CATEGORIES.find((c) => c.id === opts.categoryId && c.slug !== "all") ??
+    (() => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { adminListCategories } = require("@/lib/admin-demo") as {
+          adminListCategories: () => { id: string; name: string; slug: string }[];
+        };
+        return adminListCategories().find((c) => c.id === opts.categoryId);
+      } catch {
+        return undefined;
+      }
+    })() ??
     DEMO_CATEGORIES.find((c) => c.slug === "marketing")!;
 
   let listing = demoFindListingByTarget(opts.targetValue, opts.kind);
   const currentAmount = listing?.rankAmount ?? 0;
   const board = demoGetListings({ board: "alltime", page: 1, pageSize: 1 });
+  const cfg = getDemoRankConfig();
 
   if (!listing && opts.amount < board.claimPrice) {
-    throw new Error(`Claim #1 requires at least ${board.claimPrice} ${DEMO_RANK_CONFIG.currency}`);
+    throw new Error(`Claim #1 requires at least ${board.claimPrice} ${cfg.currency}`);
   }
   if (listing && opts.amount <= currentAmount) {
     throw new Error(`Raise must be above your current rank amount (${currentAmount})`);
@@ -492,7 +519,7 @@ export function demoCreateClaim(opts: {
     id: orderId,
     userId: opts.userId,
     amount: chargeAmount,
-    currency: DEMO_RANK_CONFIG.currency,
+    currency: cfg.currency,
     status: "AWAITING_PAYMENT",
     listingId: listing.id,
     targetAmount: opts.amount,
@@ -518,7 +545,7 @@ export function demoCreateClaim(opts: {
       provider: "mock" as const,
       providerOrderId,
       amount: chargeAmount,
-      currency: DEMO_RANK_CONFIG.currency,
+      currency: cfg.currency,
       raw: { demo: true },
     },
     listing: { id: listing.id, slug: listing.slug, title: listing.title },

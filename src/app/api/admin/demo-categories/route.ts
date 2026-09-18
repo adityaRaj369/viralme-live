@@ -1,40 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, DEMO_AUTH } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-guard";
 import {
   adminCreateCategory,
   adminListCategories,
   adminUpdateCategory,
 } from "@/lib/admin-demo";
 
-async function assertAdmin() {
-  const session = await auth();
-  if (!session?.user) return false;
-  if (DEMO_AUTH && (session.user.role === "ADMIN" || session.user.email?.includes("admin@"))) {
-    return true;
-  }
-  return session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN" || session.user.role === "MODERATOR";
-}
-
 export async function GET() {
-  if (!(await assertAdmin())) {
-    // Demo: still allow read so UI can load after admin login; otherwise empty
-    const session = await auth();
-    if (!session && !DEMO_AUTH) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  const gate = await requireAdminSession("MODERATOR");
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
   return NextResponse.json({ categories: adminListCategories() });
 }
 
 export async function POST(req: NextRequest) {
-  if (!(await assertAdmin()) && !DEMO_AUTH) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requireAdminSession("ADMIN");
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
   try {
     const body = await req.json();
     const row = adminCreateCategory({
       name: String(body.name ?? ""),
       description: body.description ? String(body.description) : undefined,
+      icon: body.icon ? String(body.icon) : undefined,
     });
     return NextResponse.json(row, { status: 201 });
   } catch (e) {
@@ -43,9 +29,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!(await assertAdmin()) && !DEMO_AUTH) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requireAdminSession("ADMIN");
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
   try {
     const body = await req.json();
     const row = adminUpdateCategory(String(body.id), {

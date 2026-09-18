@@ -7,7 +7,8 @@ import {
   getLeaderboard,
 } from "@/modules/leaderboard/service";
 import { listCategories } from "@/modules/categories/service";
-import { DEMO_CATEGORIES, DEMO_GUEST_USER_ID, useDemoStore } from "@/lib/demo-store";
+import { getPublicCategories } from "@/lib/admin-demo";
+import { DEMO_GUEST_USER_ID, useDemoStore } from "@/lib/demo-store";
 import { safeDb } from "@/lib/demo";
 
 export async function GET(req: NextRequest) {
@@ -16,10 +17,10 @@ export async function GET(req: NextRequest) {
     const category = req.nextUrl.searchParams.get("category") ?? undefined;
     const page = Number(req.nextUrl.searchParams.get("page") ?? 1);
     const categories = useDemoStore()
-      ? DEMO_CATEGORIES.filter((c) => c.slug !== "all")
+      ? getPublicCategories().filter((c) => c.slug !== "all")
       : await safeDb(
           () => listCategories(),
-          DEMO_CATEGORIES.filter((c) => c.slug !== "all") as never,
+          getPublicCategories().filter((c) => c.slug !== "all") as never,
         );
     const leaderboard = await getLeaderboard({ board, categorySlug: category, page });
     return NextResponse.json({ leaderboard, categories });

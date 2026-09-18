@@ -33,8 +33,11 @@ export default function AdminOverviewPage() {
         <Link href="/admin/categories" className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white">
           Manage categories
         </Link>
-        <Link href="/seo" className="rounded-full border border-border px-4 py-2 text-sm font-semibold">
-          View SEO board
+        <Link href="/admin/content" className="rounded-full border border-border px-4 py-2 text-sm font-semibold">
+          Edit site content
+        </Link>
+        <Link href="/admin/settings" className="rounded-full border border-border px-4 py-2 text-sm font-semibold">
+          Claim settings
         </Link>
         <Link href="/" className="rounded-full border border-border px-4 py-2 text-sm font-semibold">
           Public site

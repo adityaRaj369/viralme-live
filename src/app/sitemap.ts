@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { DEMO_CATEGORIES, useDemoStore, demoGetListings } from "@/lib/demo-store";
+import { useDemoStore, demoGetListings } from "@/lib/demo-store";
+import { getPublicCategories } from "@/lib/admin-demo";
 import { APP_DOMAIN } from "@/lib/constants";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -26,12 +27,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : path === "/seo" ? 0.95 : 0.8,
   }));
 
-  const categoryRoutes = DEMO_CATEGORIES.filter((c) => c.slug !== "all").map((c) => ({
-    url: `${base}/categories/${c.slug}`,
-    lastModified: now,
-    changeFrequency: "daily" as const,
-    priority: 0.85,
-  }));
+  const categoryRoutes = getPublicCategories()
+    .filter((c) => c.slug !== "all")
+    .map((c) => ({
+      url: `${base}/categories/${c.slug}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.85,
+    }));
 
   let listingRoutes: MetadataRoute.Sitemap = [];
   if (useDemoStore()) {

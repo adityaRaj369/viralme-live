@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DEMO_CATEGORIES, demoGetListings, demoSiteStats } from "@/lib/demo-store";
+import { demoGetListings, demoSiteStats } from "@/lib/demo-store";
+import { getPublicCategories } from "@/lib/admin-demo";
 import { SHELL } from "@/lib/shell";
 import { formatCurrency } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
@@ -15,8 +16,9 @@ export const metadata: Metadata = {
 
 export default function CategoriesPage() {
   const stats = demoSiteStats();
-  const boards = DEMO_CATEGORIES.filter((c) => c.slug !== "all" && c.slug !== "leaderboards").map(
-    (cat) => {
+  const boards = getPublicCategories()
+    .filter((c) => c.slug !== "all" && c.slug !== "leaderboards")
+    .map((cat) => {
       const board = demoGetListings({
         board: "alltime",
         categorySlug: cat.slug,
@@ -24,8 +26,7 @@ export default function CategoriesPage() {
         pageSize: 3,
       });
       return { cat, board };
-    },
-  );
+    });
 
   const hottest = [...boards]
     .filter((b) => b.board.total > 0)

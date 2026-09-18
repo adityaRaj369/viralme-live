@@ -6,6 +6,7 @@ import Link from "next/link";
 const links = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/content", label: "Site content" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/listings", label: "Listings" },
   { href: "/admin/users", label: "Users" },
@@ -18,8 +19,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session?.user) redirect("/login");
 
   const allowed =
-    hasMinRole(session.user.role, "MODERATOR") ||
-    (DEMO_AUTH && session.user.email === "admin@viralme.live");
+    hasMinRole(session.user.role, "ADMIN") ||
+    (DEMO_AUTH &&
+      session.user.email === "admin@viralme.live" &&
+      (session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"));
   if (!allowed) redirect("/");
 
   return (

@@ -20,10 +20,12 @@ See **[docs/vercel-deploy.md](./docs/vercel-deploy.md)** for the exact env vars 
 - Category boards + dedicated **/seo** paid board
 - Daily, About, FAQ, Rules, Terms, Privacy, Imprint, Live stats, Search
 - Admin category CRUD (add/disable select options) via `/admin/categories`
+- Admin **Site content** CMS (About/FAQ/Rules/legal/footer) + claim Settings
 - Click tracking via `/api/go/[slug]` + country (Vercel geo) — no fake dashboard numbers
 - SEO: sitemap, robots, Open Graph, JSON-LD, en-IN targeting
 - **No user dashboard** (same as outbid.lol) — claim from the public board
 
+See **[docs/admin-guide.md](./docs/admin-guide.md)** for how to manage the site securely.
 ## Left for you
 
 - Real Postgres (`DATABASE_URL` + `prisma db push`)

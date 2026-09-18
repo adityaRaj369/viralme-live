@@ -30,7 +30,8 @@ import { ClaimRankBox } from "@/features/leaderboard/claim-rank-box";
 import { RankCard } from "@/components/cards/rank-card";
 import { EmptyState } from "@/components/ui/states";
 import { cn, formatCurrency, formatNumber } from "@/lib/utils";
-import { DEMO_CATEGORIES, demoSiteStats } from "@/lib/demo-store";
+import { demoSiteStats } from "@/lib/demo-store";
+import { adminGetContent, getPublicCategories } from "@/lib/admin-demo";
 import { PAGE_SIZE, SHELL } from "@/lib/shell";
 
 export const dynamic = "force-dynamic";
@@ -101,6 +102,8 @@ export default async function HomePage({
   const claimPrice = alltimeTop.claimPrice;
   const currency = alltimeTop.config.currency;
   const stats = demoSiteStats();
+  const categories = getPublicCategories();
+  const { homeEmpty } = adminGetContent();
   const start = (leaderboard.page - 1) * leaderboard.pageSize + 1;
   const end = Math.min(leaderboard.page * leaderboard.pageSize, leaderboard.total);
 
@@ -113,7 +116,7 @@ export default async function HomePage({
     <div className={`${SHELL} w-full pb-16 pt-4 sm:pt-6`}>
       {/* Categories */}
       <nav className="ob-pill mb-5 flex gap-1 overflow-x-auto p-1.5 no-scrollbar" aria-label="Ranking categories">
-        {DEMO_CATEGORIES.map((p) => (
+        {categories.map((p) => (
           <Link
             key={p.slug}
             href={`/?board=${board}&category=${p.slug}`}
@@ -205,7 +208,7 @@ export default async function HomePage({
         ) : (
           <EmptyState
             title="No ranks claimed yet."
-            description="Be the first — paste a URL or @handle and claim #1."
+            description={homeEmpty}
           />
         )}
       </div>

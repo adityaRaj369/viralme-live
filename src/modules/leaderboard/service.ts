@@ -12,6 +12,7 @@ import {
   DEMO_RANK_CONFIG,
   demoCreateClaim,
   demoGetListings,
+  getDemoRankConfig,
   useDemoStore,
 } from "@/lib/demo-store";
 import { z } from "zod";
@@ -21,7 +22,7 @@ export function utcDayKey(d = new Date()) {
 }
 
 export async function getLeaderboardConfig() {
-  if (useDemoStore()) return DEMO_RANK_CONFIG;
+  if (useDemoStore()) return getDemoRankConfig();
   try {
     const settings = await prisma.siteSetting.findMany({
       where: { key: { in: ["rankMinAmount", "rankBumpAmount", "rankCurrency"] } },
@@ -33,7 +34,7 @@ export async function getLeaderboardConfig() {
       currency: String(map.rankCurrency ?? "USD"),
     };
   } catch {
-    return DEMO_RANK_CONFIG;
+    return getDemoRankConfig();
   }
 }
 
