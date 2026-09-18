@@ -1,0 +1,685 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum PlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+  LIFETIME
+  NONE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIALING
+}
+
+enum CategoryStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ContentType {
+  PRODUCT
+  VIDEO
+  FOOD
+  GROCERY
+  DEAL
+  CREATOR
+  APP
+  SERVICE
+  OTHER
+}
+
+enum MediaPlatform {
+  NONE
+  YOUTUBE
+  YOUTUBE_SHORTS
+  INSTAGRAM
+  EXTERNAL
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum PromotionType {
+  TOP_50
+  TOP_20
+  TOP_10
+  FEATURED
+  HOMEPAGE_FEATURE
+}
+
+enum PromotionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+enum OrderType {
+  SUBSCRIPTION
+  PROMOTION
+  RANK_CLAIM
+}
+
+enum OrderStatus {
+  PENDING
+  AWAITING_PAYMENT
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum ReportReason {
+  SPAM
+  SCAM
+  COPYRIGHT
+  INAPPROPRIATE
+  MISLEADING
+  BROKEN_LINK
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum ModerationActionType {
+  APPROVE
+  REJECT
+  SUSPEND
+  UNSUSPEND
+  FEATURE
+  UNFEATURE
+  HIDE
+  DELETE
+  BAN_USER
+  UNBAN_USER
+}
+
+enum AnalyticsEventType {
+  LISTING_VIEW
+  LISTING_CLICK
+  LIKE
+  UNLIKE
+  SAVE
+  UNSAVE
+  SHARE
+  PROFILE_VIEW
+  PROMOTION_IMPRESSION
+  PROMOTION_CLICK
+  EXTERNAL_CLICK
+}
+
+enum NotificationType {
+  LISTING_APPROVED
+  LISTING_REJECTED
+  PROMOTION_ACTIVATED
+  PROMOTION_EXPIRING
+  PROMOTION_EXPIRED
+  PAYMENT_SUCCESSFUL
+  PAYMENT_FAILED
+  PROFILE_LIMIT_REACHED
+  LISTING_TRENDING
+  NEW_FOLLOWER
+  SYSTEM
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  name          String?
+  role          Role       @default(USER)
+  status        UserStatus @default(ACTIVE)
+  emailVerified DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  profile            Profile?
+  subscription       Subscription?
+  listings           Listing[]           @relation("ListingOwner")
+  likes              Like[]
+  saves              Save[]
+  follows            Follow[]            @relation("Follower")
+  promotions         Promotion[]
+  orders             Order[]
+  payments           Payment[]
+  reportsFiled       Report[]            @relation("Reporter")
+  moderationActions  ModerationAction[]  @relation("Moderator")
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+  analyticsEvents    AnalyticsEvent[]
+
+  @@index([role])
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Profile {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  username     String    @unique
+  displayName  String
+  bio          String?
+  category     String?
+  website      String?
+  avatarUrl    String?
+  coverUrl     String?
+  socialLinks  Json?
+  isVerified   Boolean   @default(false)
+  viewCount    Int       @default(0)
+  followerCount Int      @default(0)
+  listingCount Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listings Listing[]
+  followers Follow[] @relation("Following")
+
+  @@index([username])
+  @@index([displayName])
+  @@map("profiles")
+}
+
+model Plan {
+  id                   String       @id @default(cuid())
+  name                 String
+  slug                 String       @unique
+  description          String?
+  price                Decimal      @db.Decimal(12, 2)
+  currency             String       @default("INR")
+  billingCycle         BillingCycle @default(MONTHLY)
+  listingLimit         Int
+  promotionCredits     Int          @default(0)
+  analyticsEnabled     Boolean      @default(false)
+  profileCustomization Boolean      @default(false)
+  featuredListingLimit Int          @default(0)
+  features             Json?
+  sortOrder            Int          @default(0)
+  status               PlanStatus   @default(ACTIVE)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  planId             String
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Category {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  description      String?
+  icon             String?
+  image            String?
+  parentCategoryId String?
+  status           CategoryStatus @default(ACTIVE)
+  sortOrder        Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  parent   Category?  @relation("CategoryTree", fields: [parentCategoryId], references: [id])
+  children Category[] @relation("CategoryTree")
+  listings ListingCategory[]
+
+  @@index([status, sortOrder])
+  @@map("categories")
+}
+
+model Listing {
+  id              String         @id @default(cuid())
+  ownerId         String
+  profileId       String
+  title           String
+  slug            String         @unique
+  description     String?
+  contentType     ContentType
+  status          ListingStatus  @default(DRAFT)
+  originalUrl     String?
+  externalUrl     String?
+  platform        MediaPlatform  @default(NONE)
+  externalId      String?
+  thumbnailUrl    String?
+  price           Decimal?       @db.Decimal(12, 2)
+  currency        String?        @default("INR")
+  location        String?
+  tags            String[]
+  creatorHandle   String?
+  rejectionReason String?
+  isFeatured      Boolean        @default(false)
+  viewCount       Int            @default(0)
+  uniqueViewCount Int            @default(0)
+  likeCount       Int            @default(0)
+  saveCount       Int            @default(0)
+  shareCount      Int            @default(0)
+  clickCount      Int            @default(0)
+  organicScore    Float          @default(0)
+  rankAmount      Decimal        @default(0) @db.Decimal(12, 2)
+  todayRankAmount Decimal        @default(0) @db.Decimal(12, 2)
+  todayRankDate   String?
+  publishedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  owner       User               @relation("ListingOwner", fields: [ownerId], references: [id])
+  profile     Profile            @relation(fields: [profileId], references: [id])
+  media       ListingMedia[]
+  categories  ListingCategory[]
+  likes       Like[]
+  saves       Save[]
+  promotions  Promotion[]
+  reports     Report[]
+  moderation  ModerationAction[]
+
+  @@index([status, contentType])
+  @@index([rankAmount])
+  @@index([todayRankAmount])
+  @@index([publishedAt])
+  @@index([ownerId])
+  @@index([profileId])
+  @@index([platform])
+  @@map("listings")
+}
+
+model ListingCategory {
+  listingId  String
+  categoryId String
+
+  listing  Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([listingId, categoryId])
+  @@map("listing_categories")
+}
+
+model ListingMedia {
+  id         String        @id @default(cuid())
+  listingId  String
+  url        String
+  type       String        @default("image")
+  platform   MediaPlatform @default(NONE)
+  externalId String?
+  thumbnail  String?
+  width      Int?
+  height     Int?
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@map("listing_media")
+}
+
+model PromotionProduct {
+  id          String        @id @default(cuid())
+  type        PromotionType @unique
+  name        String
+  description String?
+  price       Decimal       @db.Decimal(12, 2)
+  currency    String        @default("INR")
+  durationHours Int
+  slotLimit   Int
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("promotion_products")
+}
+
+model Promotion {
+  id        String          @id @default(cuid())
+  listingId String
+  userId    String
+  type      PromotionType
+  status    PromotionStatus @default(PENDING)
+  price     Decimal         @db.Decimal(12, 2)
+  currency  String          @default("INR")
+  startAt   DateTime?
+  endAt     DateTime?
+  paymentId String?
+  orderId   String?
+  slotPosition Int?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  listing Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id])
+  slot    PromotionSlot?
+
+  @@index([status, type])
+  @@index([endAt])
+  @@index([listingId])
+  @@map("promotions")
+}
+
+model PromotionSlot {
+  id          String        @id @default(cuid())
+  promotionId String        @unique
+  type        PromotionType
+  position    Int
+  listingId   String
+  startAt     DateTime
+  endAt       DateTime
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@unique([type, position])
+  @@index([type, isActive, endAt])
+  @@map("promotion_slots")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  type        OrderType
+  status      OrderStatus @default(PENDING)
+  amount      Decimal     @db.Decimal(12, 2)
+  currency    String      @default("INR")
+  description String?
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  payments     Payment[]
+  transactions Transaction[]
+
+  @@index([userId, status])
+  @@map("orders")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String
+  userId            String
+  provider          String
+  providerOrderId   String?
+  providerPaymentId String?
+  amount            Decimal       @db.Decimal(12, 2)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  rawPayload        Json?
+  verifiedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order   Order    @relation(fields: [orderId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  refunds Refund[]
+
+  @@index([providerOrderId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  orderId     String
+  amount      Decimal  @db.Decimal(12, 2)
+  currency    String   @default("INR")
+  type        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@map("transactions")
+}
+
+model Refund {
+  id                String   @id @default(cuid())
+  paymentId         String
+  amount            Decimal  @db.Decimal(12, 2)
+  currency          String   @default("INR")
+  reason            String?
+  providerRefundId  String?
+  status            String   @default("PENDING")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+
+  @@map("refunds")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@map("likes")
+}
+
+model Save {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@map("saves")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User    @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following Profile @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  listingId  String
+  reporterId String
+  reason     ReportReason
+  details    String?
+  status     ReportStatus @default(OPEN)
+  resolvedAt DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  listing  Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  reporter User    @relation("Reporter", fields: [reporterId], references: [id])
+
+  @@index([status])
+  @@map("reports")
+}
+
+model ModerationAction {
+  id         String                @id @default(cuid())
+  listingId  String?
+  moderatorId String
+  action     ModerationActionType
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime              @default(now())
+
+  listing   Listing? @relation(fields: [listingId], references: [id])
+  moderator User     @relation("Moderator", fields: [moderatorId], references: [id])
+
+  @@index([createdAt])
+  @@map("moderation_actions")
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(cuid())
+  type       AnalyticsEventType
+  userId     String?
+  listingId  String?
+  profileId  String?
+  sessionId  String?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([type, createdAt])
+  @@index([listingId, type])
+  @@index([profileId, type])
+  @@map("analytics_events")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  link      String?
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("site_settings")
+}
+
+/// Admin-curated Trending placements (NOT engagement-based)
+model TrendingPlacement {
+  id         String   @id @default(cuid())
+  listingId  String
+  position   Int
+  startAt    DateTime
+  endAt      DateTime
+  isActive   Boolean  @default(true)
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isActive, startAt, endAt])
+  @@index([position])
+  @@index([listingId])
+  @@map("trending_placements")
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(false)
+  description String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@map("feature_flags")
+}
